@@ -2,3 +2,8 @@
 /bin
 /pyscript
 *.exe
+temp.cpp
+pre-out
+test-in
+test-out
+m.sh

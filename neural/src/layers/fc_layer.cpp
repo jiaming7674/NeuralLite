@@ -54,3 +54,27 @@ MatrixXd Fc_Layer::BackPropagation(MatrixXd output_error, float learning_rate)
 
   return input_error;
 }
+
+
+MatrixXd Fc_Layer::GetWeights(void)
+{
+  return this->m_weights;
+}
+
+
+MatrixXd Fc_Layer::GetBias(void)
+{
+  return this->m_bias;
+}
+
+
+void Fc_Layer::SetWeights(MatrixXd weights)
+{
+  this->m_weights = weights;
+}
+
+
+void Fc_Layer::SetBias(MatrixXd bias)
+{
+  this->m_bias = bias;
+}

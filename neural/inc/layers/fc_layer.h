@@ -17,6 +17,11 @@ namespace Neural
       virtual Eigen::MatrixXd FeedForward(Eigen::MatrixXd input_data);
       virtual Eigen::MatrixXd BackPropagation(Eigen::MatrixXd output_error, float learning_rate);
 
+      Eigen::MatrixXd GetWeights(void);
+      Eigen::MatrixXd GetBias();
+
+      void SetWeights(Eigen::MatrixXd weights);
+      void SetBias(Eigen::MatrixXd bias);
   };
 }
 

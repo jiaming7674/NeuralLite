@@ -82,7 +82,7 @@ void Network::Fit(Eigen::MatrixXd x_train, Eigen::MatrixXd y_train, int epochs, 
 
       err += this->m_loss->Compute(y_train.row(j), output);
 
-      MatrixXd error = this->m_loss->ComputePrime(y_train.row(j), output);
+      MatrixXd error = this->m_loss->ComputeDerivative(y_train.row(j), output);
 
       for (int k = m_layer.size()-1; k >= 0; k--) {
         error = m_layer[k]->BackPropagation(error, learning_rate);

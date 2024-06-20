@@ -58,5 +58,5 @@ MatrixXd Activation_Layer::FeedForward(MatrixXd input_data)
  */
 MatrixXd Activation_Layer::BackPropagation(MatrixXd output_error, float learning_rate)
 {
-  return this->p_activation->ComputePrime(this->m_input).array() * output_error.array();
+  return this->p_activation->ComputeDerivative(this->m_input).array() * output_error.array();
 }

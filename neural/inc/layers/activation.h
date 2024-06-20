@@ -10,7 +10,7 @@ namespace Neural
     public:
       Activation() {};
       virtual Eigen::MatrixXd Compute(Eigen::MatrixXd x) = 0;
-      virtual Eigen::MatrixXd ComputePrime(Eigen::MatrixXd x) = 0;
+      virtual Eigen::MatrixXd ComputeDerivative(Eigen::MatrixXd x) = 0;
       std::string getType() {
         return this->m_type;
       }
@@ -21,14 +21,14 @@ namespace Neural
   class Than : public Activation {
     public:
       Than() {
-        m_type = "Than";
+        m_type = "Tanh";
       };
 
       virtual Eigen::MatrixXd Compute(Eigen::MatrixXd x) {
         return x.array().tanh();
       }
 
-      virtual Eigen::MatrixXd ComputePrime(Eigen::MatrixXd x) {
+      virtual Eigen::MatrixXd ComputeDerivative(Eigen::MatrixXd x) {
         return 1-x.array().tanh().pow(2);
       }
   };
