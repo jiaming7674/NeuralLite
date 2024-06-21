@@ -9,14 +9,22 @@ using namespace Eigen;
 /**
  * @brief Construct a new Fc_Layer::Fc_Layer object
  * 
- * @param input_size 
- * @param output_size 
+ * @param input_size size of input data
+ * @param output_size size of output data
  */
-Fc_Layer::Fc_Layer(int input_size, int output_size)
+Fc_Layer::Fc_Layer(int input_size, int output_size, ActivationType activationType)
 {
   this->m_as_weight = true;
   this->m_weights = Core::RandomMatrix(input_size, output_size, -0.5, 0.5);
   this->m_bias = Core::RandomMatrix(1, output_size, -0.5, 0.5);
+
+  switch (activationType) {
+    case ActivationType::TANH:
+      this->p_activation = new Than();
+      break;
+    default:
+      this->p_activation = nullptr;
+  }
 }
 
 
@@ -29,7 +37,13 @@ Fc_Layer::Fc_Layer(int input_size, int output_size)
 MatrixXd Fc_Layer::FeedForward(MatrixXd input_data)
 {
   this->m_input = input_data;
-  this->m_output = (input_data * this->m_weights) + this->m_bias;
+  this->m_net_sum = (input_data * this->m_weights) + this->m_bias;
+  // calculate activation function output
+
+  if (p_activation != nullptr)
+    this->m_output = p_activation->Compute(m_net_sum);
+  else
+    this->m_output = m_net_sum;
 
   return m_output;
 }
@@ -45,12 +59,18 @@ MatrixXd Fc_Layer::FeedForward(MatrixXd input_data)
  */
 MatrixXd Fc_Layer::BackPropagation(MatrixXd output_error, float learning_rate)
 {
-  // CPU
-  MatrixXd input_error = output_error * m_weights.transpose();
-  MatrixXd weight_error = m_input.transpose() * output_error;
+  Eigen::MatrixXd gradient;
+
+  if (this->p_activation != nullptr)
+    gradient = this->p_activation->ComputeDerivative(this->m_net_sum).array() * output_error.array();
+  else
+    gradient = output_error;
+
+  MatrixXd input_error = gradient * m_weights.transpose();
+  MatrixXd weight_error = m_input.transpose() * gradient;
 
   this->m_weights.noalias() -= learning_rate * weight_error;
-  this->m_bias.noalias() -= learning_rate * output_error;
+  this->m_bias.noalias() -= learning_rate * gradient;
 
   return input_error;
 }

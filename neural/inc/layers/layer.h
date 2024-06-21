@@ -9,6 +9,7 @@ namespace Neural
   {
     protected:
       Eigen::MatrixXd m_input;
+      Eigen::MatrixXd m_net_sum;
       Eigen::MatrixXd m_output;
       bool m_as_weight;
 

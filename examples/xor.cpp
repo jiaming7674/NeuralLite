@@ -39,12 +39,12 @@ int main(int argc, char *argv[])
 
   Activation *than = new Than();
 
-  net->Add(new Fc_Layer(2, 5));
-  net->Add(new Activation_Layer(than));
-  net->Add(new Fc_Layer(5, 1));
-  net->Add(new Activation_Layer(than));
+  net->Add(new Fc_Layer(2, 5, ActivationType::TANH));
+  //net->Add(new Activation_Layer(than));
+  net->Add(new Fc_Layer(5, 1, ActivationType::TANH));
+  //net->Add(new Activation_Layer(than));
 
-  net->Fit(x_data, x_train, 10000, 0.01, 1);
+  net->Fit(x_data, x_train, 100000, 0.01, 1);
   net->Predict(x_test);
 
   return 0;

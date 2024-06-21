@@ -6,6 +6,11 @@
 
 namespace Neural
 {
+  enum class ActivationType
+  {
+    NONE, SIGMOID, RELU, LEAKY_RELU, ELU, TANH, SOFTMAX
+  };
+
   class Activation {
     public:
       Activation() {};
