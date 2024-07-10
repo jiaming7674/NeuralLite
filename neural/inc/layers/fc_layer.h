@@ -2,15 +2,12 @@
 #define __FC_LAYER_H__
 
 #include "layer.h"
-#include "activation.h"
 
 namespace Neural
 {
   class Fc_Layer : public Layer
   {
     protected:
-      Eigen::MatrixXd m_weights;
-      Eigen::MatrixXd m_bias;
       Activation *p_activation;
 
     public:
@@ -19,11 +16,10 @@ namespace Neural
       virtual Eigen::MatrixXd FeedForward(Eigen::MatrixXd input_data);
       virtual Eigen::MatrixXd BackPropagation(Eigen::MatrixXd output_error, float learning_rate);
 
-      Eigen::MatrixXd GetWeights(void);
-      Eigen::MatrixXd GetBias();
-
-      void SetWeights(Eigen::MatrixXd weights);
-      void SetBias(Eigen::MatrixXd bias);
+      virtual void SaveLayer(std::ofstream &outfile);
+      static Fc_Layer* LoadLayer(std::ifstream &infile);
+      void SetWeights(Eigen::MatrixXd &weights);
+      void SetBias(Eigen::MatrixXd &bias);
   };
 }
 

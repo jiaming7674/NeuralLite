@@ -2,7 +2,8 @@
 #define __NETWORK_H__
 
 #include <vector>
-#include "layers/layer.h"
+#include <string>
+#include "layers/fc_layer.h"
 #include "loss.h"
 
 namespace Neural
@@ -24,7 +25,8 @@ namespace Neural
       void Evaluate(Eigen::MatrixXd y_tests, Eigen::MatrixXd y_true);
 
       std::vector<Eigen::MatrixXd> Predict(Eigen::MatrixXd input_data);
-    
+      void SaveModel(std::string name);
+      static Network* LoadModel(std::string name);
   };
 }
 

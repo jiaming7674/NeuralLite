@@ -16,17 +16,17 @@ namespace Neural
       Activation() {};
       virtual Eigen::MatrixXd Compute(Eigen::MatrixXd x) = 0;
       virtual Eigen::MatrixXd ComputeDerivative(Eigen::MatrixXd x) = 0;
-      std::string getType() {
+      ActivationType getType() {
         return this->m_type;
       }
       protected:
-        std::string m_type;
+        ActivationType m_type;
   };
 
   class Than : public Activation {
     public:
       Than() {
-        m_type = "Tanh";
+        m_type = ActivationType::TANH;
       };
 
       virtual Eigen::MatrixXd Compute(Eigen::MatrixXd x) {

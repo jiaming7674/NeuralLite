@@ -1,5 +1,6 @@
 #include "layers/fc_layer.h"
 #include "core.h"
+#include <fstream>
 
 using namespace std;
 using namespace Neural;
@@ -38,8 +39,8 @@ MatrixXd Fc_Layer::FeedForward(MatrixXd input_data)
 {
   this->m_input = input_data;
   this->m_net_sum = (input_data * this->m_weights) + this->m_bias;
+  
   // calculate activation function output
-
   if (p_activation != nullptr)
     this->m_output = p_activation->Compute(m_net_sum);
   else
@@ -52,10 +53,11 @@ MatrixXd Fc_Layer::FeedForward(MatrixXd input_data)
 /**
  * @brief Performs backward propagation on the current layer.
  * 
- * @param output_error Ths inputs of the Layer = The outputs of the previous layer, or the 
- *                     data of the first layer.
- * @param learning_rate The step size at each iteration.
- * @return MatrixXd Matrix of input layer error.
+ * @param output_error The error of the layer's output, which is the difference between
+ *                     the expected output and the actual output.
+ * @param learning_rate The step size at each iteration for updating weights and biases.
+ * @return MatrixXd The error of the input layer, which will be propagated backward to 
+ *                  the previous layer.
  */
 MatrixXd Fc_Layer::BackPropagation(MatrixXd output_error, float learning_rate)
 {
@@ -76,25 +78,92 @@ MatrixXd Fc_Layer::BackPropagation(MatrixXd output_error, float learning_rate)
 }
 
 
-MatrixXd Fc_Layer::GetWeights(void)
+/**
+ * @brief Saves the layer's configuration and parameters to an output file stream.
+ * 
+ * @param outfile The output file stream to which the layer's data will be written.
+ */
+void Fc_Layer::SaveLayer(ofstream &outfile)
 {
-  return this->m_weights;
+  // write activation type
+  ActivationType type;
+  if (this->p_activation != nullptr) {
+    type = this->p_activation->getType();
+  }
+  else {
+    type = ActivationType::NONE;
+  }
+
+  outfile.write(reinterpret_cast<const char*>(&type), sizeof(type));
+
+  // write the weights of the layer
+  int rows = this->m_weights.rows();
+  int cols = this->m_weights.cols();
+  outfile.write(reinterpret_cast<const char*>(&rows), sizeof(int));
+  outfile.write(reinterpret_cast<const char*>(&cols), sizeof(int));
+  outfile.write(reinterpret_cast<const char*>(m_weights.data()), rows * cols * sizeof(double));
+
+  rows = this->m_bias.rows();
+  cols = this->m_bias.cols();
+
+  // write the bias of the layer
+  outfile.write(reinterpret_cast<const char*>(&rows), sizeof(int));
+  outfile.write(reinterpret_cast<const char*>(&cols), sizeof(int));
+  outfile.write(reinterpret_cast<const char*>(m_bias.data()), rows * cols * sizeof(double));
 }
 
 
-MatrixXd Fc_Layer::GetBias(void)
+/**
+ * @brief Loads the layer's configuration and parameters from an input file stream.
+ * 
+ * @param infile The input file stream from which the layer's data will be read.
+ * @return Fc_Layer* A pointer to the newly created Fc_Layer with the loaded parameters.
+ */
+Fc_Layer* Fc_Layer::LoadLayer(ifstream &infile)
 {
-  return this->m_bias;
+  ActivationType type;
+  infile.read(reinterpret_cast<char*>(&type), sizeof(type));
+
+  int rows, cols;
+  infile.read(reinterpret_cast<char*>(&rows), sizeof(int));
+  infile.read(reinterpret_cast<char*>(&cols), sizeof(int));
+
+  Fc_Layer *layer = new Fc_Layer(rows, cols, type);
+
+  MatrixXd weights;
+  weights.resize(rows, cols);
+  infile.read(reinterpret_cast<char*>(weights.data()), rows * cols * sizeof(double));
+  layer->SetWeights(weights);
+
+  infile.read(reinterpret_cast<char*>(&rows), sizeof(int));
+  infile.read(reinterpret_cast<char*>(&cols), sizeof(int));
+
+  MatrixXd bias;
+  bias.resize(rows, cols);
+  infile.read(reinterpret_cast<char*>(bias.data()), rows * cols * sizeof(double));
+  layer->SetBias(bias);
+
+  return layer;
 }
 
 
-void Fc_Layer::SetWeights(MatrixXd weights)
+/**
+ * @brief Sets the weights of the layer.
+ * 
+ * @param weights A matrix containing the new weights for the layer.
+ */
+void Fc_Layer::SetWeights(Eigen::MatrixXd &weights)
 {
   this->m_weights = weights;
 }
 
 
-void Fc_Layer::SetBias(MatrixXd bias)
+/**
+ * @brief Sets the biases of the layer.
+ * 
+ * @param bias A matrix containing the new biases for the layer.
+ */
+void Fc_Layer::SetBias(Eigen::MatrixXd &bias)
 {
   this->m_bias = bias;
 }

@@ -1,6 +1,8 @@
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include "network.h"
+
 
 using namespace std;
 using namespace Neural;
@@ -145,3 +147,47 @@ vector<MatrixXd> Network::Predict(MatrixXd input_data)
 
   return res;
 }
+
+
+void Network::SaveModel(string name)
+{
+  ofstream ofs(name.c_str(), ios::out | ios::binary | ios::trunc);
+
+  int layer_size = m_layer.size();
+
+  ofs.write(reinterpret_cast<const char*>(&layer_size), sizeof(int));
+  
+  for (int i = 0; i < m_layer.size(); i++) {
+    m_layer[i]->SaveLayer(ofs);
+  }
+
+  ofs.close();
+}
+
+
+Network *Network::LoadModel(string name)
+{
+  Network *network = new Network();
+  ifstream ifs(name.c_str(), ios::in | ios::binary);
+
+  if (!ifs) {
+    cerr << "Can't open file !!" << endl;
+    delete network;
+    return nullptr;
+  }
+
+  int layer_size = 0;
+  ifs.read(reinterpret_cast<char*>(&layer_size), sizeof(layer_size));
+
+  for (int i = 0; i < layer_size; i++) {
+    Fc_Layer *layer = Fc_Layer::LoadLayer(ifs);
+    network->Add(layer);
+  }
+
+  network->Use(new Mse());
+
+  ifs.close();
+
+  return network;
+}
+
