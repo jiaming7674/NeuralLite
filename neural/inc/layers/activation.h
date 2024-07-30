@@ -3,6 +3,7 @@
 
 #include <string>
 #include <Eigen/Dense>
+#include <cmath>
 
 namespace Neural
 {
@@ -23,9 +24,78 @@ namespace Neural
         ActivationType m_type;
   };
 
-  class Than : public Activation {
+  class Sigmoid : public Activation {
     public:
-      Than() {
+      Sigmoid() {
+        m_type = ActivationType::SIGMOID;
+      };
+
+      virtual Eigen::MatrixXd Compute(Eigen::MatrixXd x) {
+        return 1.0 / (1.0 + (-x.array()).exp());
+      }
+
+      virtual Eigen::MatrixXd ComputeDerivative(Eigen::MatrixXd x) {
+        Eigen::MatrixXd s = Compute(x);
+        return s.array() * (1 - s.array());
+      }
+  };
+
+
+  class ReLU : public Activation {
+    public:
+      ReLU() {
+        m_type = ActivationType::RELU;
+      };
+
+      virtual Eigen::MatrixXd Compute(Eigen::MatrixXd x) {
+        return x.array().max(0);
+      }
+
+      virtual Eigen::MatrixXd ComputeDerivative(Eigen::MatrixXd x) {
+        return (x.array() > 0).cast<double>();
+      }
+  };
+
+
+  class LeakyReLU : public Activation {
+    private:
+      double alpha;    
+    public:
+      LeakyReLU(double alpha = 0.01) : alpha(alpha) {
+        m_type = ActivationType::LEAKY_RELU;
+      };
+    
+      virtual Eigen::MatrixXd Compute(Eigen::MatrixXd x) {
+        return (x.array() < 0).select(alpha * x.array(), x.array());      
+      }
+
+      virtual Eigen::MatrixXd ComputeDerivative(Eigen::MatrixXd x) {
+        return (x.array() < 0).select(Eigen::MatrixXd::Constant(x.rows(), x.cols(), alpha), Eigen::MatrixXd::Constant(x.rows(), x.cols(), 1.0));
+      }
+  };
+
+
+  class ELU : public Activation {
+    private:
+      double alpha;
+    public:
+      ELU(double alpha = 1.0) : alpha(alpha) {
+        m_type = ActivationType::ELU;
+      };
+
+      virtual Eigen::MatrixXd Compute(Eigen::MatrixXd x) {
+        return (x.array() < 0).select(alpha * (x.array().exp() - 1), x.array());
+      }
+
+      virtual Eigen::MatrixXd ComputeDerivative(Eigen::MatrixXd x) {
+        return (x.array() < 0).select(alpha * x.array().exp(), Eigen::MatrixXd::Constant(x.rows(), x.cols(), 1.0));
+      }
+  };
+
+
+  class Tanh : public Activation {
+    public:
+      Tanh() {
         m_type = ActivationType::TANH;
       };
 
@@ -35,6 +105,26 @@ namespace Neural
 
       virtual Eigen::MatrixXd ComputeDerivative(Eigen::MatrixXd x) {
         return 1-x.array().tanh().pow(2);
+      }
+  };
+
+
+  class Softmax : public Activation {
+    public:
+      Softmax() {
+        m_type = ActivationType::SOFTMAX;
+      };
+
+      virtual Eigen::MatrixXd Compute(Eigen::MatrixXd x) {
+        Eigen::MatrixXd exp_x = x.array().exp();
+        Eigen::VectorXd sum_exp = exp_x.rowwise().sum();
+        return exp_x.array().colwise() / sum_exp.array();
+      }
+
+      virtual Eigen::MatrixXd ComputeDerivative(Eigen::MatrixXd x) {
+        // Note: This is a simplified version. The actual Jacobian of Softmax is more complex.
+        Eigen::MatrixXd s = Compute(x);
+        return s.array() * (1 - s.array());
       }
   };
 }

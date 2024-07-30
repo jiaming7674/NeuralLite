@@ -21,7 +21,7 @@ Fc_Layer::Fc_Layer(int input_size, int output_size, ActivationType activationTyp
 
   switch (activationType) {
     case ActivationType::TANH:
-      this->p_activation = new Than();
+      this->p_activation = new Tanh();
       break;
     default:
       this->p_activation = nullptr;
