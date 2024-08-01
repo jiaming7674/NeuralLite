@@ -42,14 +42,25 @@ int main(int argc, char *argv[])
   net->Add(new Fc_Layer(5, 1, ActivationType::TANH));
 
   net->Fit(x_data, x_train, 10000, 0.01, 1);
-  net->Predict(x_test);
+
+  auto y_predict = net->Predict(x_test);
+  for (auto y : y_predict) {
+    MatrixXf::Index maxRow, maxCol;
+    float max = y.maxCoeff(&maxRow, &maxCol);
+    cout << "predict : " << y << "\t| result : " << maxCol << " | max " << max << endl;
+  }
 
   net->SaveModel("test");
 
   cout << "Load Model ..." << endl;
   auto lnet = Network::LoadModel("test");
 
-  lnet->Predict(x_test);
-
+  y_predict = lnet->Predict(x_test);
+  for (auto y : y_predict) {
+    MatrixXf::Index maxRow, maxCol;
+    float max = y.maxCoeff(&maxRow, &maxCol);
+    cout << "predict : " << y << "\t| result : " << maxCol << " | max " << max << endl;
+  }
+  
   return 0;
 }

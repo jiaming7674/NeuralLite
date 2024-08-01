@@ -22,8 +22,8 @@ namespace Neural
     Layer() {};
 
     public:
-      virtual Eigen::MatrixXd FeedForward(Eigen::MatrixXd input) = 0;
-      virtual Eigen::MatrixXd BackPropagation(Eigen::MatrixXd output_error, float learning_rate) = 0;
+      virtual Eigen::MatrixXd FeedForward(const Eigen::MatrixXd& input) = 0;
+      virtual Eigen::MatrixXd BackPropagation(const Eigen::MatrixXd& output_error, float learning_rate) = 0;
       virtual void SaveLayer(std::ofstream &outfile) = 0;
       virtual void SetWeights(Eigen::MatrixXd &weights) = 0;
       virtual void SetBias(Eigen::MatrixXd &bias) = 0;

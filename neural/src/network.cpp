@@ -139,10 +139,6 @@ vector<MatrixXd> Network::Predict(MatrixXd input_data)
     }
 
     res.push_back(output);
-
-    MatrixXf::Index maxRow, maxCol;
-    float max = output.maxCoeff(&maxRow, &maxCol);
-    cout << "predict \n" << output << " | result : " << maxCol << " | max " << max << endl;
   }
 
   return res;

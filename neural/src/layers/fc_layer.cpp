@@ -35,7 +35,7 @@ Fc_Layer::Fc_Layer(int input_size, int output_size, ActivationType activationTyp
  * @param input The inputs of the Layer = The outputs of the previous Layer, or The data of the first Layer 
  * @return MatrixXd Output Matrix of forward propagation results.
  */
-MatrixXd Fc_Layer::FeedForward(MatrixXd input_data)
+MatrixXd Fc_Layer::FeedForward(const MatrixXd& input_data)
 {
   this->m_input = input_data;
   this->m_net_sum = (input_data * this->m_weights) + this->m_bias;
@@ -59,7 +59,7 @@ MatrixXd Fc_Layer::FeedForward(MatrixXd input_data)
  * @return MatrixXd The error of the input layer, which will be propagated backward to 
  *                  the previous layer.
  */
-MatrixXd Fc_Layer::BackPropagation(MatrixXd output_error, float learning_rate)
+MatrixXd Fc_Layer::BackPropagation(const MatrixXd& output_error, float learning_rate)
 {
   Eigen::MatrixXd gradient;
 
