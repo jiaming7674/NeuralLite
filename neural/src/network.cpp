@@ -91,20 +91,20 @@ void Network::Fit(Eigen::MatrixXd x_train, Eigen::MatrixXd y_train, int epochs, 
       }
 
       int percent = (j*100) / samples;
-      cout << "\r" << "epoch : " << i+1 << "/" << epochs << " " << percent+1 << "%" << " | samples : " << j+1 << " | " << " loss " << err/samples ;
+      //cout << "\r" << "epoch : " << i+1 << "/" << epochs << " " << percent+1 << "%" << " | samples : " << j+1 << " | " << " loss " << err/samples ;
     }
 
     auto t_end = chrono::high_resolution_clock::now();
     double elapsed_time_ms = chrono::duration<double, milli>(t_end - t_start).count();
 
-    cout << " | " << " time " << elapsed_time_ms*0.001 << "s " << endl;
+    //cout << " | " << " time " << elapsed_time_ms*0.001 << "s " << endl;
     m_error.push_back(err/samples);
   }
 
   auto stop = chrono::high_resolution_clock::now();
   auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
 
-  cout << "\nTime taken by fitting: " << duration.count() * 0.000001 << " second" << endl;
+  //cout << "\nTime taken by fitting: " << duration.count() * 0.000001 << " second" << endl;
 }
 
 

@@ -16,7 +16,7 @@ using namespace Eigen;
 Fc_Layer::Fc_Layer(int input_size, int output_size, ActivationType activationType)
 {
   this->m_as_weight = true;
-  this->m_weights = Core::RandomMatrix(input_size, output_size, -0.5, 0.5);
+  this->m_weights = Core::RandomMatrix(input_size, output_size, -1.0, 1.0);
   this->m_bias = Core::RandomMatrix(1, output_size, -0.5, 0.5);
 
   switch (activationType) {
