@@ -13,8 +13,8 @@ namespace Neural
     public:
       Fc_Layer(int input_size, int output_size, ActivationType activationType);
 
-      virtual Eigen::MatrixXd FeedForward(const Eigen::MatrixXd& input_data);
-      virtual Eigen::MatrixXd BackPropagation(const Eigen::MatrixXd& output_error, float learning_rate);
+      Eigen::MatrixXd FeedForward(const Eigen::MatrixXd& input_data) override;
+      Eigen::MatrixXd BackPropagation(const Eigen::MatrixXd& output_error, float learning_rate) override;
 
       virtual void SaveLayer(std::ofstream &outfile);
       static Fc_Layer* LoadLayer(std::ifstream &infile);

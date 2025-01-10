@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 
 #include "activation.h"
+#include "../optimizers/optimizer.h"
 
 namespace Neural
 {
@@ -17,6 +18,8 @@ namespace Neural
       Eigen::MatrixXd m_weights;
       Eigen::MatrixXd m_bias;
       bool m_as_weight;
+    public:
+      std::unique_ptr<Optimizer> m_optimizer;
 
     public:
     Layer() {};

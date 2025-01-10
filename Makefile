@@ -1,4 +1,4 @@
-CC=/ucrt64/bin/g++
+CC=/usr/bin/g++
 SDIR=./neural/src
 ODIR=./bin
 INC=-I./neural/inc -I/ucrt64/include/eigen3 -I/ucrt64/include
