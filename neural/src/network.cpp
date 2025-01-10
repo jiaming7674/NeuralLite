@@ -79,45 +79,74 @@ void Network::UseOptimizer(Optimizer* optimizer)
  */
 void Network::Fit(Eigen::MatrixXd x_train, Eigen::MatrixXd y_train, int epochs, double learning_rate, int batch_size, int verbose)
 {
-  int samples = x_train.rows();
-  int cols = x_train.cols();
+    int samples = x_train.rows();
+    int cols = x_train.cols();
 
-  auto start = chrono::high_resolution_clock::now();
+    auto start = chrono::high_resolution_clock::now();
 
-  for (int i = 0; i < epochs; i++) {
-    double err = 0;
-    auto t_start = chrono::high_resolution_clock::now();
+    for (int i = 0; i < epochs; i++) {
+        double err = 0.0;
+        auto t_start = chrono::high_resolution_clock::now();
 
-    for (int j = 0; j < samples; j++) {
-      RowMajMat output(1, cols);
-      output.row(0) = x_train.row(j);
-      for (int l = 0; l < m_layer.size(); l++) {
-        output = m_layer[l]->FeedForward(output);
-      }
+        // Shuffle training data
+        Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic> perm(samples);
+        perm.setIdentity();
+        std::random_shuffle(perm.indices().data(), perm.indices().data() + perm.indices().size());
+        x_train = perm * x_train;
+        y_train = perm * y_train;
 
-      err += this->m_loss->Compute(y_train.row(j), output);
+        // Mini-batch training
+        for (int j = 0; j < samples; j += batch_size) {
+            int batch_end = std::min(j + batch_size, samples);
+            int current_batch_size = batch_end - j;
 
-      MatrixXd error = this->m_loss->ComputeDerivative(y_train.row(j), output);
+            Eigen::MatrixXd x_batch = x_train.block(j, 0, current_batch_size, cols);
+            Eigen::MatrixXd y_batch = y_train.block(j, 0, current_batch_size, y_train.cols());
 
-      for (int k = m_layer.size()-1; k >= 0; k--) {
-        error = m_layer[k]->BackPropagation(error, learning_rate);
-      }
+            Eigen::MatrixXd output = x_batch;
 
-      int percent = (j*100) / samples;
-      if (verbose >= 1) cout << "\r" << "epoch : " << i+1 << "/" << epochs << " " << percent+1 << "%" << " | samples : " << j+1 << " | " << " loss " << err/samples ;
+            // Forward pass
+            for (int l = 0; l < m_layer.size(); l++) {
+                output = m_layer[l]->FeedForward(output);
+            }
+
+            // Compute loss
+            err += this->m_loss->Compute(y_batch, output);
+
+            // Backward pass
+            Eigen::MatrixXd error = this->m_loss->ComputeDerivative(y_batch, output);
+            for (int k = m_layer.size() - 1; k >= 0; k--) {
+                error = m_layer[k]->BackPropagation(error, learning_rate);
+            }
+
+            // Update progress (optional)
+            if (verbose >= 2 && j % 100 == 0) {
+                cout << "\rBatch " << j / batch_size + 1 << "/" << (samples + batch_size - 1) / batch_size 
+                     << " | Loss: " << err / (j + 1) << flush;
+            }
+        }
+
+        err /= samples;
+
+        auto t_end = chrono::high_resolution_clock::now();
+        double elapsed_time_s = chrono::duration<double>(t_end - t_start).count();
+
+        // Epoch summary
+        if (verbose >= 1) {
+            cout << "\rEpoch " << i + 1 << "/" << epochs 
+                 << " | Loss: " << err 
+                 << " | Time: " << elapsed_time_s << "s" << endl;
+        }
+
+        m_error.push_back(err);
     }
 
-    auto t_end = chrono::high_resolution_clock::now();
-    double elapsed_time_ms = chrono::duration<double, milli>(t_end - t_start).count();
+    auto stop = chrono::high_resolution_clock::now();
+    double duration = chrono::duration_cast<chrono::seconds>(stop - start).count();
 
-    if (verbose >= 1) cout << " | " << " time " << elapsed_time_ms*0.001 << "s " << endl;
-    m_error.push_back(err/samples);
-  }
-
-  auto stop = chrono::high_resolution_clock::now();
-  auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-
-  //cout << "\nTime taken by fitting: " << duration.count() * 0.000001 << " second" << endl;
+    if (verbose >= 1) {
+        cout << "\nTraining complete in " << duration << " seconds." << endl;
+    }
 }
 
 
