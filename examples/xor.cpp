@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
   net->Add(new Fc_Layer(5, 5, ActivationType::RELU));
   net->Add(new Fc_Layer(5, 1, ActivationType::TANH));
 
+  net->UseOptimizer(new Adam(0.001));
+  
   net->Fit(x_data, x_train, 10000, 0.01, 1);
 
   auto y_predict = net->Predict(x_test);

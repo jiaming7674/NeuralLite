@@ -17,7 +17,7 @@ typedef Matrix<double, Dynamic, Dynamic, RowMajor> RowMajMat;
  */
 Network::Network()
 {
-
+  this->m_loss = nullptr;
 }
 
 
@@ -30,6 +30,8 @@ Network::~Network()
   for (int i = 0; i < m_layer.size(); i++) {
     delete(m_layer[i]);
   }
+
+  delete m_loss;
 }
 
 
@@ -52,6 +54,18 @@ void Network::Add(Layer *layer)
 void Network::Use(Loss *l)
 {
   this->m_loss = l;
+}
+
+
+/**
+ * @brief Adding a optimizer to network
+ */
+void Network::UseOptimizer(Optimizer* optimizer)
+{
+  for (auto layer : this->m_layer) {
+    layer->m_optimizer = optimizer->Clone();
+    //auto x = optimizer->Clone();
+  }
 }
 
 

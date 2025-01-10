@@ -20,8 +20,23 @@ Fc_Layer::Fc_Layer(int input_size, int output_size, ActivationType activationTyp
   this->m_bias = Core::RandomMatrix(1, output_size, -0.5, 0.5);
 
   switch (activationType) {
+    case ActivationType::SIGMOID:
+      this->p_activation = new Sigmoid();
+      break;
+    case ActivationType::RELU:
+      this->p_activation = new ReLU();
+      break;
+    case ActivationType::LEAKY_RELU:
+      this->p_activation = new LeakyReLU();
+      break;
+    case ActivationType::ELU:
+      this->p_activation = new ELU();
+      break;
     case ActivationType::TANH:
       this->p_activation = new Tanh();
+      break;
+    case ActivationType::SOFTMAX:
+      this->p_activation = new Softmax();
       break;
     default:
       this->p_activation = nullptr;
@@ -71,8 +86,15 @@ MatrixXd Fc_Layer::BackPropagation(const MatrixXd& output_error, float learning_
   MatrixXd input_error = gradient * m_weights.transpose();
   MatrixXd weight_error = m_input.transpose() * gradient;
 
-  this->m_weights.noalias() -= learning_rate * weight_error;
-  this->m_bias.noalias() -= learning_rate * gradient;
+  if (this->m_optimizer != nullptr) {
+    MatrixXd bias_error = gradient;
+    m_optimizer->UpdateWeights(m_weights, weight_error);
+    m_optimizer->UpdateBias(m_bias, bias_error);
+  }
+  else {
+    this->m_weights.noalias() -= learning_rate * weight_error;
+    this->m_bias.noalias() -= learning_rate * gradient;
+  }
 
   return input_error;
 }
