@@ -22,7 +22,7 @@ namespace Neural
       void Add(Layer *layer);
       void Use(Loss *l);
       void UseOptimizer(Optimizer* optimizer);
-      void Fit(Eigen::MatrixXd x_train, Eigen::MatrixXd y_train, int epochs, double learning_rate, int batch_size);
+      void Fit(Eigen::MatrixXd x_train, Eigen::MatrixXd y_train, int epochs, double learning_rate, int batch_size, int verbose = 1);
       void Evaluate(Eigen::MatrixXd y_tests, Eigen::MatrixXd y_true);
 
       std::vector<Eigen::MatrixXd> Predict(Eigen::MatrixXd input_data);

@@ -64,7 +64,6 @@ void Network::UseOptimizer(Optimizer* optimizer)
 {
   for (auto layer : this->m_layer) {
     layer->m_optimizer = optimizer->Clone();
-    //auto x = optimizer->Clone();
   }
 }
 
@@ -78,7 +77,7 @@ void Network::UseOptimizer(Optimizer* optimizer)
  * @param learning_rate The step size at each iteration
  * @param batch_size 
  */
-void Network::Fit(Eigen::MatrixXd x_train, Eigen::MatrixXd y_train, int epochs, double learning_rate, int batch_size)
+void Network::Fit(Eigen::MatrixXd x_train, Eigen::MatrixXd y_train, int epochs, double learning_rate, int batch_size, int verbose)
 {
   int samples = x_train.rows();
   int cols = x_train.cols();
@@ -105,13 +104,13 @@ void Network::Fit(Eigen::MatrixXd x_train, Eigen::MatrixXd y_train, int epochs, 
       }
 
       int percent = (j*100) / samples;
-      //cout << "\r" << "epoch : " << i+1 << "/" << epochs << " " << percent+1 << "%" << " | samples : " << j+1 << " | " << " loss " << err/samples ;
+      if (verbose >= 1) cout << "\r" << "epoch : " << i+1 << "/" << epochs << " " << percent+1 << "%" << " | samples : " << j+1 << " | " << " loss " << err/samples ;
     }
 
     auto t_end = chrono::high_resolution_clock::now();
     double elapsed_time_ms = chrono::duration<double, milli>(t_end - t_start).count();
 
-    //cout << " | " << " time " << elapsed_time_ms*0.001 << "s " << endl;
+    if (verbose >= 1) cout << " | " << " time " << elapsed_time_ms*0.001 << "s " << endl;
     m_error.push_back(err/samples);
   }
 

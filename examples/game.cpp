@@ -61,9 +61,9 @@ void UpdatePlayer(int inputAction)
   }
 
   if (inputAction & MOVE_LEFT)
-    player.rotation -= playerRotationSpeed;
-  if (inputAction & MOVE_RIGHT)
     player.rotation += playerRotationSpeed;
+  if (inputAction & MOVE_RIGHT)
+    player.rotation -= playerRotationSpeed;
 
   // Update direction
   player.direction.x = cos(player.rotation * DEG2RAD);
@@ -128,13 +128,6 @@ void DrawGame()
 
   // 繪製目標
   DrawCircleV(goal.position, goal.radius, GREEN);
-
-  // 新增：計算並顯示方位和角度
-  float angleToGoal, distanceToGoal;
-  CalculateDirectionToGoal(angleToGoal, distanceToGoal);
-
-  DrawText(("Angle to Goal: " + std::to_string(static_cast<int>(angleToGoal)) + "°").c_str(), 10, 10, 20, BLACK);
-  DrawText(("Distance to Goal: " + std::to_string(static_cast<int>(distanceToGoal))).c_str(), 10, 40, 20, BLACK);
 }
 
 
@@ -148,7 +141,7 @@ public:
     this->Add(new Fc_Layer(2, 64, ActivationType::TANH));
     this->Add(new Fc_Layer(64, 32, ActivationType::LEAKY_RELU));
     // Output layer: 3 neurons (left, right, none)
-    this->Add(new Fc_Layer(32, 3, ActivationType::SIGMOID));
+    this->Add(new Fc_Layer(32, 3, ActivationType::NONE));
 
     this->Use(new Mse());
   }
@@ -259,7 +252,7 @@ public:
       Eigen::MatrixXd output(1, 3);
       output << q_values;
 
-      qnetwork.Fit(input, output, 1, learning_rate, 1);
+      qnetwork.Fit(input, output, 1, learning_rate, 0);
     }
   }
 
@@ -273,6 +266,8 @@ int main()
 {
   InitWindow(screenWidth, screenHeight, "AI Training Environment");
   SetTargetFPS(60);
+
+  RenderTexture2D renderTexture = LoadRenderTexture(screenWidth, screenHeight);
 
   InitGame();
 
@@ -350,10 +345,17 @@ int main()
 
     if (done) reward = 0;
 
-    BeginDrawing();
+    BeginTextureMode(renderTexture);
       ClearBackground(RAYWHITE);
       DrawGame();
+    EndTextureMode();
+
+    BeginDrawing();
+      ClearBackground(RAYWHITE);
+      DrawTextureEx(renderTexture.texture, (Vector2){0, 0}, 0, 1.0, RAYWHITE);
       DrawText(("Reward: " + std::to_string(static_cast<double>(reward))).c_str(), 10, 70, 20, RED);
+      DrawText(("Angle to Goal: " + std::to_string(static_cast<int>(angleDifference)) + "°").c_str(), 10, 10, 20, BLACK);
+      DrawText(("Distance to Goal: " + std::to_string(static_cast<int>(distanceToGoal))).c_str(), 10, 40, 20, BLACK);      
     EndDrawing();
   }
 
