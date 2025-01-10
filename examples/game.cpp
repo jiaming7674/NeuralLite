@@ -252,7 +252,7 @@ public:
       Eigen::MatrixXd output(1, 3);
       output << q_values;
 
-      qnetwork.Fit(input, output, 1, learning_rate, 0);
+      qnetwork.Fit(input, output, 1, learning_rate, 1, 0);
     }
   }
 
@@ -287,12 +287,15 @@ int main()
     int action = agent.GetAction(state);
     int inputAction = 0;
 
-    if (IsKeyDown(KEY_LEFT))  action = 1;
-    if (IsKeyDown(KEY_RIGHT)) action = 2;
-
     if (action == 0)      inputAction = 0;
     else if (action == 1) inputAction = MOVE_LEFT;
     else if (action == 2) inputAction = MOVE_RIGHT;
+
+    if (IsKeyDown(KEY_LEFT))       goal.position.x -= 2;
+    else if (IsKeyDown(KEY_RIGHT)) goal.position.x += 2;
+
+    if (IsKeyDown(KEY_UP))         goal.position.y += 2;
+    else if (IsKeyDown(KEY_DOWN))  goal.position.y -= 2;
 
     UpdatePlayer(inputAction | MOVE_FORWARD);
 
