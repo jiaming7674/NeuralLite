@@ -16,7 +16,7 @@ namespace Neural
       Eigen::MatrixXd FeedForward(const Eigen::MatrixXd& input_data) override;
       Eigen::MatrixXd BackPropagation(const Eigen::MatrixXd& output_error, float learning_rate) override;
 
-      virtual void SaveLayer(std::ofstream &outfile);
+      void SaveLayer(std::ofstream &outfile) override;
       static Fc_Layer* LoadLayer(std::ifstream &infile);
       void SetWeights(Eigen::MatrixXd &weights);
       void SetBias(Eigen::MatrixXd &bias);
