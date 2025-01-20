@@ -30,21 +30,6 @@ Conv_Layer::Conv_Layer(tuple<int, int, int> dimensions,
 }
 
 
-// MatrixXd Conv_Layer::FeedForward(const MatrixXd& input_data)
-// {
-//   this->m_input = input_data;
-//   MatrixXd out(this->m_nb_filters, input_data.size());
-//   for (int i = 0; i < m_nb_filters; i++) {
-//     MatrixXd filterArray(m_filter_size, m_filter_size);
-//     filterArray = this->m_weights.row(i);
-//     Map<MatrixXd> filterMatrix(filterArray.data(), m_filter_size, m_filter_size);
-//     Map<MatrixXd> temp(Core::Correlate2D(input_data, filterMatrix, 1, SAME).data(), 1, input_data.size());
-//     out.row(i) = temp;
-//   }
-//   this->m_output = out;
-//   return this->m_output;
-// }
-
 MatrixXd Conv_Layer::FeedForward(const MatrixXd& input_data)
 {
   this->m_input = input_data;
@@ -59,7 +44,6 @@ MatrixXd Conv_Layer::FeedForward(const MatrixXd& input_data)
   this->m_output = out;
   return this->m_output;
 }
-
 
 
 MatrixXd Conv_Layer::BackPropagation(const MatrixXd& output_error, float learning_rate)
