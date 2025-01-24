@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
 
   tuple<int, int, int> dimensions = make_tuple(28, 28, 1);
   tuple<int, int, int> filter = make_tuple(3, 3, 1);
-  // TODO : Number of filter ??
 
   net = new Network();
 

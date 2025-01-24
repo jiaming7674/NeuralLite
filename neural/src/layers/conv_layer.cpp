@@ -29,6 +29,7 @@ Conv_Layer::Conv_Layer(tuple<int, int, int> dimensions,
   this->m_weights = filters;
 }
 
+#if 1
 
 MatrixXd Conv_Layer::FeedForward(const MatrixXd& input_data)
 {
@@ -73,6 +74,67 @@ MatrixXd Conv_Layer::BackPropagation(const MatrixXd& output_error, float learnin
   return in_error;
 }
 
+#else
+
+MatrixXd Conv_Layer::FeedForward(const MatrixXd& input_data)
+{
+  this->m_input = input_data;
+  int batch_size = input_data.rows();
+  
+  // initialzie output matrix
+  MatrixXd out(batch_size, m_nb_filters * m_height * m_width);
+
+  for (int b = 0; b < batch_size; b++) {
+    Map<MatrixXd> input_reshaped(m_input.row(b).data(), m_height, m_width);
+
+    for (int i = 0; i < m_nb_filters; i++) {
+      Map<MatrixXd> filterMatrix(m_weights.row(i).data(), m_filter_size, m_filter_size);
+      MatrixXd temp = Core::Correlate2D(input_reshaped, filterMatrix, 1, SAME);
+      Map<MatrixXd> temp_mapped(temp.data(), 1, m_height * m_width);
+      out.block(b, i * m_height * m_width, 1, m_height * m_width) = temp_mapped;
+    }
+  }
+
+  this->m_output = out;
+
+  return this->m_output;
+}
+
+
+MatrixXd Conv_Layer::BackPropagation(const MatrixXd &output_error, float learning_rate)
+{
+  int batch_size = output_error.rows();
+
+  MatrixXd in_error(batch_size, m_input.size() * this->m_nb_filters);
+  MatrixXd d_weights = MatrixXd::Zero(m_weights.rows(), m_weights.cols());
+
+  MatrixXd _output_error = output_error;
+
+  for (int b = 0; b < batch_size; b++)
+  {
+    Map<MatrixXd> outerr(_output_error.row(b).data(), this->m_height, this->m_width);
+
+    for (int i = 0; i < m_nb_filters; i++)
+    {
+      Map<MatrixXd> filterMatrix(m_weights.row(i).data(), m_filter_size, m_filter_size);
+      MatrixXd temp_err = Core::Correlate2D(outerr, filterMatrix, 1, SAME);
+
+      Map<MatrixXd> temperr(temp_err.data(), 1, m_height * m_width);
+      in_error.block(b, i * m_height * m_width, 1, m_height * m_width) = temperr;
+
+      Map<MatrixXd> output_matrix(_output_error.row(b).data(), m_filter_size, m_filter_size);
+      Map<MatrixXd> input_reshaped(m_input.row(b).data(), m_height, m_width);
+      MatrixXd d_w = Core::Correlate2D(input_reshaped, output_matrix, 1, SAME);
+      Map<MatrixXd> d_w_mapped(d_w.data(), 1, m_filter_size * m_filter_size);
+      d_weights.row(i) += d_w_mapped;
+    }
+  }
+
+  this->m_weights.noalias() -= learning_rate * d_weights / batch_size;
+  return in_error;
+}
+
+#endif
 
 void Conv_Layer::SaveLayer(std::ofstream &outfile)
 {
